@@ -1,25 +1,39 @@
 package com.refaccionaria.sistemapos.producto;
-import com.refaccionaria.sistemapos.producto.Producto;
-import org.springframework.data.jpa.repository.JpaRepository;
+
+import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProductoService{
+public class ProductoService {
 
     private final ProductoRepository productoRepository;
 
-    public ProductoService(ProductoRepository productoRepository){
+    public ProductoService(ProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
     }
 
-    public List<Producto> ListarProductos(){
+    public List<Producto> listarProductos() {
+        List<Producto> productos = productoRepository.findAll();
 
-        return productoRepository.findAll();
+        System.out.println("hola");
+        return productos;
+
     }
-    public Producto Agregar_Producto(Producto){
 
-        return productoRepository.save(Producto);
+    public Producto AgregarProducto(Producto producto) {
+        return productoRepository.save(producto);
     }
 
+    public Producto BuscarById(Integer id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+    }
 
+    public void EliminarById(Integer id) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        producto.setActivo(false);
+        productoRepository.save(producto);
+    }
 }

@@ -1,20 +1,17 @@
 package com.refaccionaria.sistemapos.producto;
 
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/productos")
 public class ProductoController {
 
-    private ProductoService productoService;
+    private final ProductoService productoService;
+
+    public ProductoController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
 
     @GetMapping
     public List<Producto> listarProductos() {
@@ -22,17 +19,17 @@ public class ProductoController {
     }
 
     @GetMapping("/{id}")
-    public Producto buscarById(@PathVariable Integer id) {
-        return productoService.buscarById(id);
+    public Producto BuscarById(@PathVariable Integer id) {
+        return productoService.BuscarById(id);
     }
 
     @PostMapping
-    public Producto agregarProducto(@RequestBody Producto producto) {
-        return productoService.agregarProducto(producto);
+    public Producto AgregarProducto(@RequestBody Producto producto) {
+        return productoService.AgregarProducto(producto);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminarById(@PathVariable Integer id) {
-        productoService.eliminarById(id);
+    public void EliminarById(@PathVariable Integer id) {
+        productoService.EliminarById(id);
     }
 }
