@@ -13,14 +13,11 @@ public class ProductoService {
     }
 
     public List<Producto> listarProductos() {
-        List<Producto> productos = productoRepository.findAll();
-
-        System.out.println("hola");
-        return productos;
-
+        return productoRepository.findAll();
     }
 
     public Producto AgregarProducto(Producto producto) {
+
         return productoRepository.save(producto);
     }
 

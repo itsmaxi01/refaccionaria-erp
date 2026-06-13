@@ -8,13 +8,12 @@ public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_producto;
-
+    @Column(name = "id_producto")
+    private Integer idproducto;
     private String codigo_barras;
     private String nombre;
     private String tipo;
-    private BigDecimal precio_menudeo;
-    private BigDecimal precio_mayoreo;
+    private BigDecimal precio;
     private Boolean activo = true;
 
     public Producto() {
@@ -23,8 +22,8 @@ public class Producto {
     public void setActivo(Boolean activo) {
         this.activo = activo;
     }
-    public Integer getId_producto() {
-        return id_producto;
+    public Integer getidproducto() {
+        return idproducto;
     }
 
     public String getCodigo_barras() {
@@ -39,13 +38,17 @@ public class Producto {
         return tipo;
     }
 
-    public BigDecimal getPrecio_menudeo() {
-        return precio_menudeo;
+    public BigDecimal getPrecio() {return precio;}
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
+    public void setIdproducto(Integer idproducto) {
+        this.idproducto = idproducto;
     }
 
-    public BigDecimal getPrecio_mayoreo() {
-        return precio_mayoreo;
-    }
+
+
 
     public Boolean getActivo() {
         return activo;
