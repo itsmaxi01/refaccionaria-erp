@@ -15,6 +15,7 @@ public class ProductoController {
 
     @GetMapping
     public List<Producto> listarProductos() {
+        System.out.println("ENTRÓ A /productos");
         return productoService.listarProductos();
     }
 
@@ -25,6 +26,8 @@ public class ProductoController {
 
     @PostMapping
     public Producto AgregarProducto(@RequestBody Producto producto) {
+        System.out.println("Codigo: " + producto.getCodigo_barras());
+        System.out.println("Nombre: " + producto.getNombre());
         return productoService.AgregarProducto(producto);
     }
 

@@ -25,7 +25,7 @@ public class InventarioService {
         if(inventario.getProducto() != null){
             System.out.println(
                     "Id Producto: " +
-                            inventario.getProducto().getidproducto()
+                            inventario.getProducto().getIdproducto()
             );
         }
 
@@ -48,6 +48,13 @@ public class InventarioService {
         }
         return inventarioRepository.save(inventario);
     }
+    public Inventario BuscarById(Integer id){
+        return inventarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+    }
+   /* public boolean ExistenciaByProducto(Integer idProducto){
+        Inventario inventario = inventarioRepository.findById()
+
+    }*/
 
 
 

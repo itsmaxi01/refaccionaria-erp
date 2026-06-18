@@ -20,6 +20,10 @@ public class Pago {
     private String metodo;
     private LocalDate fecha;
 
+    public Pago(){
+
+    }
+
 
     public Integer getIdpago() {
         return idpago;

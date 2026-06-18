@@ -16,6 +16,10 @@ public class Venta {
     private String estado;
     private String tipo_venta;
 
+    public Venta(){
+
+    }
+
 
     public Integer getIdventa() {
         return idventa;

@@ -1,5 +1,6 @@
 package com.refaccionaria.sistemapos.producto;
 
+import com.refaccionaria.sistemapos.inventario.InventarioService;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -7,8 +8,11 @@ import java.util.List;
 public class ProductoService {
 
     private final ProductoRepository productoRepository;
+    private final InventarioService inventarioService;
 
-    public ProductoService(ProductoRepository productoRepository) {
+    public ProductoService(ProductoRepository productoRepository, InventarioService inventarioService)
+    {
+        this.inventarioService  = inventarioService;
         this.productoRepository = productoRepository;
     }
 
@@ -17,7 +21,12 @@ public class ProductoService {
     }
 
     public Producto AgregarProducto(Producto producto) {
-
+        /*System.out.println("ID: " + producto.getIdproducto());
+        System.out.println("Código de barras: " + producto.getCodigo_barras());
+        System.out.println("Nombre: " + producto.getNombre());
+        System.out.println("Tipo: " + producto.getTipo());
+        System.out.println("Precio: " + producto.getPrecio());
+        System.out.println("Activo: " + producto.getActivo());*/ //debugg
         return productoRepository.save(producto);
     }
 
