@@ -35,11 +35,13 @@ public class ProductoService {
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
     }
 
-    public void EliminarById(Integer id) {
+    public Producto EliminarById(Integer id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
+        if(inventarioService.ExistenciaByProducto(id)){
+            throw new RuntimeException("Hay un producto en stock, intente mas tarde");
+        }
         producto.setActivo(false);
-        productoRepository.save(producto);
+        return productoRepository.save(producto);
     }
 }

@@ -1,4 +1,4 @@
-/*package com.refaccionaria.sistemapos.venta;
+package com.refaccionaria.sistemapos.cliente;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +12,7 @@ public class Cliente
     private String telefono;
     private String direccion;
     private String tipo_cliente;
+    private Boolean activo = true;
 
     public Integer getIdcliente() {
         return idcliente;
@@ -53,5 +54,11 @@ public class Cliente
         this.tipo_cliente = tipo_cliente;
     }
 
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
 }
-*/

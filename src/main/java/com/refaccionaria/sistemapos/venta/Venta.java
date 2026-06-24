@@ -1,5 +1,6 @@
 package com.refaccionaria.sistemapos.venta;
 import jakarta.persistence.*;
+import com.refaccionaria.sistemapos.cliente.Cliente;
 
 import java.time.LocalDate;
 

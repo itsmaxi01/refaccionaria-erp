@@ -39,6 +39,9 @@ public class InventarioService {
 
     //descontar
     public Inventario descontar(Integer idInventario,Integer cantidad){
+        if(cantidad<=0){
+            throw new RuntimeException("Ingrese una cantidad mayor a 0");
+        }
         Inventario inventario = inventarioRepository.findById(idInventario).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         if(inventario.getCantidad() < cantidad){
             throw new RuntimeException("Sin stock");
@@ -48,13 +51,24 @@ public class InventarioService {
         }
         return inventarioRepository.save(inventario);
     }
+
+
+
     public Inventario BuscarById(Integer id){
         return inventarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
     }
-   /* public boolean ExistenciaByProducto(Integer idProducto){
-        Inventario inventario = inventarioRepository.findById()
-
-    }*/
+    public boolean ExistenciaByProducto(Integer idProducto){
+        boolean Existencia = false;
+        List<Inventario> inventarios = inventarioRepository.findByProducto_Idproducto(idProducto);
+        for(int i=0;i< inventarios.size();i++){
+            Inventario inventario = inventarios.get(i);
+            if(inventario.getCantidad()>0){
+                Existencia = true;
+                break;
+            }
+        }
+        return Existencia;
+    }
 
 
 

@@ -1,4 +1,5 @@
-/*package com.refaccionaria.sistemapos.venta;
+package com.refaccionaria.sistemapos.pago;
+import com.refaccionaria.sistemapos.venta.Venta;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -65,12 +66,4 @@ public class Pago {
         this.fecha = fecha;
     }
 
-
-
-
-
-
-
-
 }
-*/

@@ -15,7 +15,7 @@ public class ProductoController {
 
     @GetMapping
     public List<Producto> listarProductos() {
-        System.out.println("ENTRÓ A /productos");
+        System.out.println("ENTRO A /productos");
         return productoService.listarProductos();
     }
 
@@ -33,6 +33,7 @@ public class ProductoController {
 
     @DeleteMapping("/{id}")
     public void EliminarById(@PathVariable Integer id) {
+        System.out.println("Id " + id);
         productoService.EliminarById(id);
     }
 }

@@ -1,4 +1,4 @@
-/*package com.refaccionaria.sistemapos.venta;
+package com.refaccionaria.sistemapos.cliente;
 import com.refaccionaria.sistemapos.producto.Producto;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +13,13 @@ public class ClienteService
         this.clienteRepository=clienteRepository;
     }
     //agregar cliente
-
     public Cliente AgregarCliente(Cliente cliente){
         return clienteRepository.save(cliente);
 
     }
     //modificar cliente
-    public Cliente ModificarCliente(Integer id, Cliente clienteNuevo){
-        Cliente cliente = clienteRepository.findById(id).orElseThrow();
+    public Cliente ModificarCliente( Cliente clienteNuevo){
+        Cliente cliente = clienteRepository.findById(clienteNuevo.getIdcliente()).orElseThrow();
         cliente.setNombre(clienteNuevo.getNombre());
         cliente.setDireccion(clienteNuevo.getDireccion());
         cliente.setTipo_cliente(clienteNuevo.getTipo_cliente());
@@ -29,8 +28,10 @@ public class ClienteService
     }
     //eliminar cliente
 
-    public void EliminarClienteById(Integer id){
-        clienteRepository.deleteById(id);
+    public Cliente EliminarClienteById(Integer id){
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        cliente.setActivo(false);
+        return clienteRepository.save(cliente);
     }
     //buscar cliente
     public Cliente BuscarById(Integer id){
@@ -44,4 +45,4 @@ public class ClienteService
 
 
 
-}*/
+}

@@ -1,4 +1,5 @@
-/*package com.refaccionaria.sistemapos.venta;
+package com.refaccionaria.sistemapos.pago;
+import com.refaccionaria.sistemapos.venta.VentaDto;
 
 import java.math.BigDecimal;
 
@@ -22,4 +23,4 @@ public class PagoDTO {
     public void setMetodo(String metodo) {
         this.metodo = metodo;
     }
-}*/
+}

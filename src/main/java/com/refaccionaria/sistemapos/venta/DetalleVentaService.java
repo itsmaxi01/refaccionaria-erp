@@ -1,6 +1,7 @@
 package com.refaccionaria.sistemapos.venta;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -15,6 +16,18 @@ public class DetalleVentaService {
     }
     public DetalleVenta GuardarDetalle(DetalleVenta detalleVenta){
         return detalleVentaRepository.save(detalleVenta);
+    }
+
+
+    public BigDecimal TotalByVenta(Integer idVenta){
+        BigDecimal Total = new BigDecimal(0);
+         List<DetalleVenta> detalles = detalleVentaRepository.findByVenta_Idventa(idVenta);
+
+         for(int i=0;i<detalles.size();i++){
+             DetalleVenta detalle = detalles.get(i);
+             Total = Total.add(detalle.getSubtotal());
+         }
+        return Total;
     }
 
 
