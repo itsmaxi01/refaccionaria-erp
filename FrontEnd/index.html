@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>POS Refaccionaria</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <!-- PANEL IZQUIERDO -->
+    <div class="izquierda">
+
+        <h1>Dashboard Vendedor</h1>
+
+        <div class="buscador">
+
+            <input
+                id="buscador"
+                type="text"
+                placeholder="Buscar producto">
+
+            <button id="btnBuscar">
+                Buscar
+            </button>
+
+        </div>
+
+
+        <div id="productos">
+            <!-- JS pinta aquí los productos -->
+        </div>
+
+
+    </div>
+
+
+    <!-- PANEL DERECHO -->
+    <div class="derecha">
+
+        <h2>Carrito</h2>
+
+        <div id="carrito">
+
+            <p>Vacío</p>
+
+        </div>
+
+
+        <div class="resumen">
+
+          
+            <h3 id="subtotal"></h3>
+
+            <a href="pages/confirmacion.html">
+                Ir al carrito
+            </a>
+            <br>
+
+            <a href="pages/pagos.html">
+            Pagos pendientes
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<script type="module" src="js/pages/dashboardVendedor.js"></script>
+
+</body>
+
+</html>

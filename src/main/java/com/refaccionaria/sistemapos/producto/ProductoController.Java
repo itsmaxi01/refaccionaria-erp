@@ -15,7 +15,7 @@ public class ProductoController {
 
     @GetMapping
     public List<Producto> listarProductos() {
-        System.out.println("ENTRO A /productos");
+
         return productoService.listarProductos();
     }
 

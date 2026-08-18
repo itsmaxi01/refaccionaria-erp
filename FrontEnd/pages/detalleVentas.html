@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Venta</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+<body>
+
+<div class="contenedor">
+
+    <!-- Información de la venta -->
+    <div class="izquierda">
+
+        <div class="producto" id ="Venta">
+            <h2>Información de la venta</h2>
+
+            <p><strong>ID Venta:</strong> <span id="idVenta"></span></p>
+            <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+            <p><strong>Estado:</strong> <span id="estado"></span></p>
+            <p><strong>Tipo:</strong> <span id="tipoVenta"></span></p>
+
+            <hr>
+
+             <div id="Cliente">
+            <h3>Cliente</h3>
+            <p><strong>Nombre:</strong> <span id="cliente"></span></p>
+            <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
+            <p><strong>Dirección:</strong> <span id="direccion"></span></p>
+            <p><strong>Tipo Cliente:</strong> <span id="tipoCliente"></span></p>
+             </div>
+           
+        </div>
+
+        <br>
+
+        <h2>Productos</h2>
+
+        <div class="productosCard">
+
+    <div class="tituloProductos">
+        <h2>Productos</h2>
+        <p>Productos incluidos en esta venta</p>
+    </div>
+
+    <div id="productos" class="listaProductos">
+        <!-- Aquí se agregan dinámicamente -->
+    </div>
+
+</div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="derecha">
+
+        <h2>Resumen</h2>
+
+        <p><strong>Total Pagado:</strong> <span id="totalPagado"></span></p>
+
+        <p><strong>Total:</strong></p>
+        <h2>$<span id="total"></span></h2>
+         <button id="generarPago" class="btnPago">
+        Generar pago
+    </button>
+
+    </div>
+
+</div>
+
+<script type="module" src="../js/pages/detallesPagos.js"></script>
+
+</body>
+</html>

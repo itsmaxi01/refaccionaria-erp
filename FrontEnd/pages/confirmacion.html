@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar Venta</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="contenedor-venta">
+
+    <h1>Confirmar Venta</h1>
+
+    <!-- DATOS GENERALES -->
+
+    <div class="panel">
+
+        <h2>Datos de la Venta</h2>
+
+        <div class="campo">
+
+            <label>Cliente</label>
+
+            <select id="cliente">
+                <option value="">Cliente General</option>
+            </select>
+
+        </div>
+
+        <div class="campo">
+
+            <label>Tipo de Venta</label>
+
+            <select id="tipoVenta">
+
+                <option value="MOSTRADOR">
+                    Mostrador
+                </option>
+
+                <option value="CREDITO">
+                    Crédito
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <!-- DETALLES -->
+
+    <div class="panel">
+
+        <h2>Productos</h2>
+
+        <div id="detalleVenta">
+
+            <!-- JS pinta aquí -->
+
+            <div class="detalle-item">
+
+                    <div id="carrito">
+
+                    <p>Vacío</p>
+
+                        </div>
+
+                <div>
+
+                    <label>Precio Unitario</label>
+
+                    <input
+                        type="number"
+                        value="120.50"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PAGO -->
+
+    <div class="panel">
+
+        <h2>Pago</h2>
+
+        <div class="campo">
+
+            <label>Monto</label>
+
+            <input
+                id="montoPago"
+                type="number"
+                step="0.01">
+
+        </div>
+
+        <div class="campo">
+
+            <label>Método</label>
+
+            <select id="metodoPago">
+
+                <option value="EFECTIVO">
+                    Efectivo
+                </option>
+
+                <option value="TARJETA">
+                    Tarjeta
+                </option>
+
+                <option value="TRANSFERENCIA">
+                    Transferencia
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+
+    <div class="panel resumen">
+
+        <h2>Resumen</h2>
+
+        <h3 id="subtotal">
+            Total: $0.00
+        </h3>
+
+        <button id="confirmarVenta">
+            Confirmar Venta
+        </button>
+
+    </div>
+
+</div>
+<script type="module" src="../js/pages/detalleVenta.js"></script>
+</body>
+</html>
