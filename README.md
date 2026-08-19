@@ -377,7 +377,7 @@ Para ejecutar el proyecto se debe importar el archivo SQL incluido en el reposit
 ### 1. Clonar el repositorio
 
 ```bash
-git clone URL_DEL_REPOSITORIO
+git clone https://github.com/itsmaxi01/refaccionaria-erp.git
 cd refaccionaria-erp
 ```
 
