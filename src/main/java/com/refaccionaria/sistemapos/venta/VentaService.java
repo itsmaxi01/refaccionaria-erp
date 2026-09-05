@@ -1,4 +1,6 @@
 package com.refaccionaria.sistemapos.venta;
+import com.refaccionaria.sistemapos.excepciones.BadRequestException;
+import com.refaccionaria.sistemapos.excepciones.ResourceNotFoundException;
 import com.refaccionaria.sistemapos.inventario.Inventario;
 import com.refaccionaria.sistemapos.cliente.ClienteService;
 import com.refaccionaria.sistemapos.cliente.Cliente;
@@ -32,23 +34,25 @@ public class VentaService {
         this.clienteService = clienteService;
         this.detalleVentaService = detalleVentaService;
     }
-    @Transactional
-    public Venta crearVenta(VentaDto venta){
-        //validaciones edge cases
+    public void validarVenta(VentaDto venta){
         validarVentaDto(venta);
         validarDetallesDto(venta.getDetalles());
         validarPagoDto(venta.getPago());
-      Venta ventaR= new Venta();
-      if(venta.getIdCliente()!=null){
-          ventaR.setcliente(clienteService.BuscarById(venta.getIdCliente()));
-      }
-      ventaR.setFecha(LocalDate.now());
-      ventaR.setTipo_venta(venta.getTipoVenta());
-      ventaR.setEstado("Pendiente"); //se calcula como pendiente de forma predeterminada
-      ventaRepository.save(ventaR); //guardo venta para poder utilizar el id de detalle
-      //guardar detalleV
-        //id_detalle	id_venta	id_inventario	cantidad	precio_unitario	subtotal
+    }
+    public Venta creacionVenta(VentaDto venta){
+        Venta ventaR= new Venta();
+        if(venta.getIdCliente()!=null){
+            ventaR.setCliente(clienteService.BuscarById(venta.getIdCliente()));
+        }
+        ventaR.setFecha(LocalDate.now());
+        ventaR.setTipo_venta(venta.getTipoVenta());
+        ventaR.setEstado("Pendiente"); //se calcula como pendiente de forma predeterminada
+        ventaRepository.save(ventaR); //guardo venta para poder utilizar el id de detalle
+        return ventaR;
+    }
+    public BigDecimal  guardarDetalles(Venta ventaR, VentaDto venta){
         BigDecimal total = new BigDecimal(0);//variable para guardar el total de la venta
+        //id_detalle	id_venta	id_inventario	cantidad	precio_unitario	subtotal
         for (int i = 0; i < venta.getDetalles().size(); i++) {
             DetalleVenta detalle= new DetalleVenta(); //inicializo detalle
             detalle.setVenta(ventaR);
@@ -63,12 +67,18 @@ public class VentaService {
                 detalle.setPrecioUnitario(inventario.getProducto().getPrecio());
 
             }
+            if (detalle.getPrecioUnitario() == null || detalle.getPrecioUnitario().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BadRequestException("El precio unitario del detalle " + (i + 1) + " debe ser mayor a 0");
+            }
             BigDecimal subtotal = detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad()));
             detalle.setSubtotal(subtotal);
             detalleVentaService.GuardarDetalle(detalle);
             total = total.add(subtotal); //version MVP sin busqueda en la db para debuggear
         }
-        //construir pago
+        return total;
+
+    }
+    public void ProcesarPago(Venta ventaR,BigDecimal total, VentaDto venta  ){
         Pago pago = new Pago();
         pago.setFecha(LocalDate.now());
         pago.setVenta(ventaR);
@@ -81,46 +91,59 @@ public class VentaService {
         }
         //con edge cases de credito refactor despues
         else if(pago.getMonto().compareTo(zero) > 0 ){
-            if(ventaR.getcliente() == null){
-                throw new RuntimeException("No se puedehacer una venta a credito sin ser cliente");
+            if(ventaR.getCliente() == null){
+                throw new BadRequestException("No se puedehacer una venta a credito sin ser cliente");
             }
             ventaR.setEstado("PARCIAL");
             System.out.println("El saldo a pagar es de " + total.subtract(pago.getMonto()));
         }
         else if(pago.getMonto().compareTo(zero) <= 0 ){
-            if(ventaR.getcliente() == null){
-                throw new RuntimeException("No se puedehacer una venta a credito sin ser cliente");
+            if(ventaR.getCliente() == null){
+                throw new BadRequestException("No se puedehacer una venta a credito sin ser cliente");
             }
             ventaR.setEstado("PENDIENTE");
             System.out.println("El saldo a pagar es de " + total.subtract(pago.getMonto()));
         }
         pagoRepository.save(pago);
+    }
+    @Transactional
+    public Venta crearVenta(VentaDto venta){
+       validarVenta(venta);
+       Venta ventaR = creacionVenta(venta);
+       BigDecimal total = guardarDetalles(ventaR,venta);
+       ProcesarPago(ventaR,total,venta);
       return ventaRepository.save(ventaR);
     }
 
     public void actualizarVenta(Integer idVenta,String Estado){
-        Venta venta = ventaRepository.findById(idVenta).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        Venta venta = ventaRepository.findById(idVenta).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         venta.setEstado(Estado);
     }
 
     //refactoirzar despues
     private void validarVentaDto(VentaDto venta){
         if(venta == null || venta.getTipoVenta() == null){
-            throw new RuntimeException("venta es null o se necesita especificar tipo de venta");
+            throw new BadRequestException("venta es null o se necesita especificar tipo de venta");
         }
 
     }
     private void validarDetallesDto(List<DetalleVentaDTO> detalles){
         if(detalles == null || detalles.isEmpty() ){
-            throw new RuntimeException("Detalles nulos");
+            throw new BadRequestException("Detalles nulos");
         }
         for(int i=0; i<detalles.size();i++){
            DetalleVentaDTO detalle = detalles.get(i);
-           if(detalle.getCantidad()<=0 || detalle.getCantidad() == null){
-               throw new RuntimeException("La cantidad del detalle %d no es valida" +(i+1));
+           if (detalle == null) {
+               throw new BadRequestException("El detalle " + (i + 1) + " no puede ser nulo");
+           }
+           if( detalle.getCantidad() == null || detalle.getCantidad()<=0  ){
+               throw new BadRequestException("La cantidad del detalle " + (i + 1) + " debe ser mayor a 0");
+           }
+           if (detalle.getPrecioUnitario() != null && detalle.getPrecioUnitario().compareTo(BigDecimal.ZERO) <= 0) {
+               throw new BadRequestException("El precio unitario del detalle " + (i + 1) + " debe ser mayor a 0");
            }
            if(detalle.getIdInventario() == null){
-               throw new RuntimeException("El detalle vene tener inventario" );
+               throw new BadRequestException("El detalle vene tener inventario" );
            }
 
         }
@@ -128,41 +151,46 @@ public class VentaService {
     public void validarPagoDto(PagoDTO pago){       //se reutilizara en pagos
         BigDecimal zero = new BigDecimal(0);
         if(pago == null || pago.getMonto() == null){
-            throw new RuntimeException("El pago o el monto no puede ser nulo");
+            throw new BadRequestException("El pago o el monto no puede ser nulo");
         }
-        if(pago.getMonto() == null){
-            throw new RuntimeException("Elija un metodo");
+        if(pago.getMetodo() == null){
+            throw new BadRequestException("Elija un metodo");
         }
         if(pago.getMonto().compareTo(zero) < 0){
-            throw new RuntimeException("El pago es de 0 ");
+            throw new BadRequestException("El pago es de 0 ");
         }
     }
     public Venta BuscarById(Integer id){
-        return ventaRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return ventaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
     }
 
      //DEFINO CONSTANTE PARA PAGADA
-     public static final String PAGADA = "PAGADA";
     public List<Venta> VentasPendientes(){
-        return ventaRepository.findByEstadoNot(PAGADA); //da pendientes, y parciales
+        return ventaRepository.findByEstadoNotIn(estados); //da pendientes, y parciales
     }
-    /*public Venta VentaPendienteById(Integer id){
-        List<Venta> ventas = ventaRepository.findByEstadoNot(PAGADA);
-        Venta venta = new Venta();
-        for(int i=0;i< ventas.size();i++){
-             venta = ventas.get(i);
 
-            if(venta.getIdventa()==id){
-                break;
-            }
-
-        }
-        return venta;
-    }*/
+    List<String> estados = List.of("PAGADA", "SALDADA");
 
     public Venta VentaPendienteById(Integer id){
-        return ventaRepository.findByEstadoNotAndIdventa(PAGADA,id).orElseThrow(() -> new RuntimeException("Pues alch no hay nada we"));
+        return ventaRepository.findByEstadoNotInAndIdventa(estados,id).orElseThrow(() -> new ResourceNotFoundException("Pues alch no hay nada we"));
     }
+
+    public List<Venta> ventasPendientes(){
+        List<String> estados = List.of("PAGADA", "SALDADA");
+        List<Venta> ventas = ventaRepository.findByEstadoNotIn(estados);
+        for(int i=0;i<ventas.size();i++){
+            Venta ventaActual = ventas.get(i);
+            System.out.printf("Cliente: %s%n", ventaActual.getCliente().getNombre());
+
+
+        }
+        return ventas;
+    }
+
+
+
+
+
 
 
 

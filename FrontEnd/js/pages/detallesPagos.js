@@ -13,6 +13,7 @@ async function detallesPagos() {
 
     // Obtener todos los detalles de la venta
     const detalles = await cargarDetallesVentas(idVenta);
+    if (!detalles.length) throw new Error("No se encontraron detalles de esta venta");
 
     console.log(detalles);
 
@@ -43,24 +44,33 @@ async function detallesPagos() {
     console.log("contenedorDetalles:", contenedorDetalles);
 
     // Dibujar información
-    dibujarVenta(venta, contenedorVenta);
+    await dibujarVenta(venta, contenedorVenta, total);
     dibujarDetalles(detallesProductos, contenedorDetalles);
 
     // Mandar a pagos
     console.log("idVenta:", idVenta);
 
-    const idCliente = cliente.idCliente;
+    const idCliente = cliente?.idCliente;
 
     console.log("idCliente:", idCliente);
 
     const botonPago = document.getElementById("generarPago");
+
+    if (idCliente == null) {
+        botonPago.disabled = true;
+        return;
+    }
 
     botonPago.addEventListener("click", () => {
 
         window.location.href =
             `abonarPagos.html?id=${idVenta}&idCliente=${idCliente}`;
 
-    });s
+    });
 }
 
-detallesPagos();
+detallesPagos().catch(error => {
+    console.error(error);
+    document.getElementById("generarPago").disabled = true;
+    alert("No se pudo cargar el detalle: " + error.message);
+});

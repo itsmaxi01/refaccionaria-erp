@@ -1,5 +1,7 @@
 package com.refaccionaria.sistemapos.producto;
+import com.refaccionaria.sistemapos.excepciones.ConflictException;
 
+import com.refaccionaria.sistemapos.excepciones.ResourceNotFoundException;
 import com.refaccionaria.sistemapos.inventario.InventarioService;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -32,16 +34,20 @@ public class ProductoService {
 
     public Producto BuscarById(Integer id) {
         return productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
     }
 
     public Producto EliminarById(Integer id) {
         Producto producto = productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         if(inventarioService.ExistenciaByProducto(id)){
-            throw new RuntimeException("Hay un producto en stock, intente mas tarde");
+            throw new ConflictException("Hay un producto en stock, intente mas tarde");
         }
         producto.setActivo(false);
         return productoRepository.save(producto);
     }
-}
+
+
+    }
+
+

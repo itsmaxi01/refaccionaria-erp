@@ -1,10 +1,9 @@
 package com.refaccionaria.sistemapos.venta;
 
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/Ventas")
@@ -21,6 +20,19 @@ public class VentaController {
     public Venta RealizarVenta(@RequestBody VentaDto venta){
         return ventaService.crearVenta(venta);
     }
+
+
+    @GetMapping
+    public List<Venta> ventasPendientes(){ return ventaService.ventasPendientes();}
+
+
+
+
+
+
+
+
+
 
 }
 

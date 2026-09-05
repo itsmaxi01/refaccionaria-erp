@@ -1,6 +1,7 @@
 package com.refaccionaria.sistemapos.cliente;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLOutput;
 import java.util.List;
 
 @RestController
@@ -20,6 +21,13 @@ public class ClienteController {
 
     @PostMapping
     public Cliente AgregarCliente(@RequestBody Cliente cliente) {
+        System.out.println("====== REQUEST ======");
+        System.out.println("ID: " + cliente.getIdCliente());
+        System.out.println("Nombre: " + cliente.getNombre());
+        System.out.println("Tipo: " + cliente.getTipoCliente());
+
+
+
         return clienteService.AgregarCliente(cliente);
     }
 
@@ -32,9 +40,9 @@ public class ClienteController {
         return clienteService.ModificarCliente(cliente);
     }
 
-    @PostMapping("/Clientes/{idCliente}")
-    public Cliente BuscarClienteById(@PathVariable Integer id){
-        return clienteService.BuscarById(id);
+    @GetMapping("/Clientes/{idCliente}")
+    public Cliente BuscarClienteById(@PathVariable Integer idCliente) {
+        return clienteService.BuscarById(idCliente);
     }
 
 

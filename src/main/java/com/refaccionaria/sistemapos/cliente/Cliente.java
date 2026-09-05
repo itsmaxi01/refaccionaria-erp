@@ -1,25 +1,43 @@
 package com.refaccionaria.sistemapos.cliente;
+
 import jakarta.persistence.*;
 
 @Entity
-public class Cliente
-{
+public class Cliente {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
-    private Integer idcliente;
+    private Integer idCliente;
+
     private String nombre;
+
     private String telefono;
+
     private String direccion;
-    private String tipo_cliente;
+
+    @Column(name = "tipo_cliente")
+    private String tipoCliente;
+
     private Boolean activo = true;
 
-    public Integer getIdcliente() {
-        return idcliente;
+    public Cliente() {
     }
 
-    public void setIdcliente(Integer idcliente) {
-        this.idcliente = idcliente;
+    public Cliente(String nombre, String telefono, String direccion, String tipoCliente) {
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.direccion = direccion;
+        this.tipoCliente = tipoCliente;
+        this.activo = true;
+    }
+
+    public Integer getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getNombre() {
@@ -46,12 +64,12 @@ public class Cliente
         this.direccion = direccion;
     }
 
-    public String getTipo_cliente() {
-        return tipo_cliente;
+    public String getTipoCliente() {
+        return tipoCliente;
     }
 
-    public void setTipo_cliente(String tipo_cliente) {
-        this.tipo_cliente = tipo_cliente;
+    public void setTipoCliente(String tipoCliente) {
+        this.tipoCliente = tipoCliente;
     }
 
     public Boolean getActivo() {

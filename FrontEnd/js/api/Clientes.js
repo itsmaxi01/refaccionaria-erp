@@ -4,6 +4,9 @@ export async function cargarClientes() {
 
     try{
         const respuesta = await fetch(Url)
+        if (!respuesta.ok) {
+            throw new Error((await respuesta.text()) || `Error HTTP: ${respuesta.status}`);
+        }
         
         const clientes = await respuesta.json(); 
 
@@ -13,6 +16,7 @@ export async function cargarClientes() {
 
     } catch (error) {
          console.error(error);
+        throw error;
     }
 
 
@@ -25,10 +29,10 @@ export async function obtenerCliente(idCliente) {
     try {
 
         const respuesta = await fetch(url);
-
         if (!respuesta.ok) {
-            throw new Error(`Error HTTP: ${respuesta.status}`);
+            throw new Error((await respuesta.text()) || `Error HTTP: ${respuesta.status}`);
         }
+
 
         const cliente = await respuesta.json();
 

@@ -1,7 +1,7 @@
 import { totalByIdVenta } from "../api/ventaPendiente.js";
-export async function dibujarVenta(venta,contenedorVenta){
+export async function dibujarVenta(venta,contenedorVenta,totalConsultado){
     console.log(venta);
-    const total = await totalByIdVenta(venta.idventa);
+    const total = totalConsultado ?? await totalByIdVenta(venta.idventa);
 
     contenedorVenta.innerHTML = `
     <div class="card">

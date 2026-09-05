@@ -35,6 +35,9 @@ async function detalleVenta() {
         }
     };
 
+    let pagoEditado = false;
+    montoPago.addEventListener("input", () => { pagoEditado = true; });
+
     function actualizarSubtotal() {
 
         const subtotal = venta.detalles.reduce(
@@ -45,7 +48,7 @@ async function detalleVenta() {
         subtotalElemento.textContent = `Total: $${subtotal.toFixed(2)}`;
 
         // Opcional: llenar automáticamente el monto de pago
-        montoPago.value = subtotal.toFixed(2);
+        if (!pagoEditado) montoPago.value = subtotal.toFixed(2);
     }
 
     // Calcula el subtotal inicial
@@ -84,7 +87,8 @@ async function detalleVenta() {
 
     btnConfirmar.addEventListener("click", async () => {
 
-        eliminarCarrito();
+        if (btnConfirmar.disabled) return;
+        btnConfirmar.disabled = true;
         
 
     venta.tipoVenta = tipoVenta.value;
@@ -97,13 +101,15 @@ async function detalleVenta() {
     try {
 
         await registrarVenta(venta);
+        eliminarCarrito();
 
         window.location.href = "../index.html";
 
     } catch (error) {
 
         console.error(error);
-        alert("No se pudo registrar la venta");
+        alert(error.message || "No se pudo registrar la venta");
+        btnConfirmar.disabled = false;
 
     }
 
@@ -111,4 +117,8 @@ async function detalleVenta() {
 
 }
 
-detalleVenta();
+detalleVenta().catch(error => {
+    console.error(error);
+    document.getElementById("confirmarVenta").disabled = true;
+    alert("No se pudo cargar la venta: " + error.message);
+});

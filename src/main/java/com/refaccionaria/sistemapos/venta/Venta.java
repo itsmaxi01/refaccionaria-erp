@@ -30,10 +30,10 @@ public class Venta {
         this.idventa = idventa;
     }
 
-    public Cliente getcliente() {
+    public Cliente getCliente() {
         return cliente;
     }
-    public void setcliente(Cliente cliente) {
+    public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 

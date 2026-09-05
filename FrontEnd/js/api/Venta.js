@@ -9,7 +9,7 @@ export async function registrarVenta(venta) {
     });
 
     if (!respuesta.ok) {
-        throw new Error("Error al registrar la venta");
+        throw new Error((await respuesta.text()) || "Error al registrar la venta");
     }
 
     return await respuesta.json(); }

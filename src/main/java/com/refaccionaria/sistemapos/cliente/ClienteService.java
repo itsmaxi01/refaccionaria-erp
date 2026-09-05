@@ -1,4 +1,5 @@
 package com.refaccionaria.sistemapos.cliente;
+import com.refaccionaria.sistemapos.excepciones.ResourceNotFoundException;
 import com.refaccionaria.sistemapos.producto.Producto;
 import org.springframework.stereotype.Service;
 
@@ -19,17 +20,17 @@ public class ClienteService
     }
     //modificar cliente
     public Cliente ModificarCliente( Cliente clienteNuevo){
-        Cliente cliente = clienteRepository.findById(clienteNuevo.getIdcliente()).orElseThrow();
+        Cliente cliente = clienteRepository.findById(clienteNuevo.getIdCliente()).orElseThrow();
         cliente.setNombre(clienteNuevo.getNombre());
         cliente.setDireccion(clienteNuevo.getDireccion());
-        cliente.setTipo_cliente(clienteNuevo.getTipo_cliente());
+        cliente.setTipoCliente(clienteNuevo.getTipoCliente());
         cliente.setTelefono(clienteNuevo.getTelefono());
         return clienteRepository.save(cliente);
     }
     //eliminar cliente
 
     public Cliente EliminarClienteById(Integer id){
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
         cliente.setActivo(false);
         return clienteRepository.save(cliente);
     }

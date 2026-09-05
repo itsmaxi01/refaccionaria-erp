@@ -14,6 +14,11 @@ public class DetalleVentaService {
     public List<DetalleVenta> ListarDetalles(){
         return detalleVentaRepository.findAll();
     }
+
+    public List<DetalleVenta> ListarDetallesById(Integer id){
+        return detalleVentaRepository.findByVenta_Idventa(id);
+    }
+
     public DetalleVenta GuardarDetalle(DetalleVenta detalleVenta){
         return detalleVentaRepository.save(detalleVenta);
     }

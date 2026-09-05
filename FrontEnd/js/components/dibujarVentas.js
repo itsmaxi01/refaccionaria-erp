@@ -1,39 +1,34 @@
-import { totalByIdVenta } from "../api/ventaPendiente.js";
-import { totaPagadoByIdVenta } from "../api/ventaPendiente.js";
-
-export async function dibujarVentas(ventas, contenedor,verDetalle) {
-
-    contenedor.innerHTML = "";
-
+export function dibujarVentas(ventas, contenedor, verDetalle) {
+    contenedor.replaceChildren();
+    if (ventas.length === 0) {
+        contenedor.textContent = "No hay ventas pendientes que coincidan.";
+        return;
+    }
     for (const venta of ventas) {
-
-         console.log("ID:", venta.idventa);
-
-        const total = await totalByIdVenta(venta.idventa);
-        const totalPagado = await totaPagadoByIdVenta(venta.idventa);
-
-
         const div = document.createElement("div");
         div.classList.add("venta");
-
-        div.innerHTML = `
-            <p><strong>ID VENTA</strong> ${venta.idventa}</p>
-            <p><strong>Cliente:</strong> ${venta.cliente.nombre}</p>
-            <p><strong>Total:</strong> $${total}</p>
-            <p><strong>TotalPagado:</strong> $${totalPagado}</p>
-            <p><strong>Fecha:</strong> ${venta.fecha}</p>
-
-            <button class="btn btn-primary" id="btnDetalle-${venta.idventa}">
-                Ver detalle
-            </button>
-        `;
-
+        for (const [etiqueta, valor] of [
+            ["ID VENTA", venta.idventa],
+            ["Cliente", venta.cliente?.nombre ?? "Sin cliente"],
+            ["Total", "$" + venta.total],
+            ["TotalPagado", "$" + venta.totalPagado],
+            ["Fecha", venta.fecha]
+        ]) {
+            const parrafo = document.createElement("p");
+            const titulo = document.createElement("strong");
+            titulo.textContent = etiqueta + ": ";
+            parrafo.append(titulo, String(valor));
+            div.appendChild(parrafo);
+        }
+        const boton = document.createElement("button");
+        boton.className = "btn btn-primary";
+        boton.id = "btnDetalle-" + venta.idventa;
+        boton.textContent = "Ver detalle";
+        boton.addEventListener("click", () => {
+            if (verDetalle) verDetalle(venta.idventa);
+            else window.location.href = "detalleVentas.html?id=" + encodeURIComponent(venta.idventa);
+        });
+        div.appendChild(boton);
         contenedor.appendChild(div);
-        contenedor.addEventListener("click", (e) => {
-         if (e.target.matches("[id^='btnDetalle-']")) {
-        const idVenta = e.target.id.replace("btnDetalle-", "");
-        window.location.href = `detalleVentas.html?id=${idVenta}`;
-    }
-            });
     }
 }

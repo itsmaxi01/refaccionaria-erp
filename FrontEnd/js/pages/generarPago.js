@@ -25,15 +25,18 @@ dibujarCliente(contenedorCliente,cliente);
 
 
 const formPago = document.getElementById("formPago");
+const botonPago = document.getElementById("registrarPago");
 
 formPago.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (botonPago.disabled) return;
+    botonPago.disabled = true;
 
     const monto = document.getElementById("monto").value;
     const metodo = document.getElementById("tipoPago").value;
 
     console.log(monto);
-    console.log(tipoPago);
+    console.log(metodo);
      const pago = {
         monto: monto,
         metodo: metodo
@@ -44,12 +47,14 @@ formPago.addEventListener("submit", async (event) => {
         const respuesta = await generarPagos(pago, idVenta);
 
         console.log("Pago generado:", respuesta);
+        window.location.href = "../index.html";
 
 
     } catch (error) {
         console.error("Error al generar el pago:", error);
+        alert(error.message || "No se pudo registrar el pago");
+        botonPago.disabled = false;
     }
-    window.location.href = "../index.html";
 
 });
 
@@ -61,4 +66,8 @@ formPago.addEventListener("submit", async (event) => {
 
 }
 
-generarPago();
+generarPago().catch(error => {
+    console.error(error);
+    document.getElementById("registrarPago").disabled = true;
+    alert("No se pudo cargar el formulario: " + error.message);
+});

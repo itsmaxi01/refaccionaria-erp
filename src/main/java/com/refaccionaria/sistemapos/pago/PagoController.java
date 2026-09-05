@@ -1,6 +1,7 @@
 package com.refaccionaria.sistemapos.pago;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -22,6 +23,11 @@ public class PagoController {
     public Pago registrarPago(@RequestBody PagoDTO pago, @PathVariable Integer idVenta) {
         return pagoService.Registrar_Pago(pago, idVenta);
     }
+    @GetMapping("/Venta/{idVenta}")
+    public BigDecimal totalPagadoById(@PathVariable Integer idVenta) {
+        return pagoService.totalPagadoById(idVenta);
+    }
+
 
 
 }

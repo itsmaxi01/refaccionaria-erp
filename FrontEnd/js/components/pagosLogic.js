@@ -2,7 +2,7 @@ export function filtrarVentasPendientes(textoBuscado,ventas){
   
   
     const ventasFiltradas = ventas.filter(venta =>
-    venta.cliente.nombre.toLowerCase().includes(textoBuscado)
+    (venta.cliente?.nombre ?? "Sin cliente").toLowerCase().includes(textoBuscado)
 );
     return ventasFiltradas;
 }

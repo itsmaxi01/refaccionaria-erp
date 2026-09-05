@@ -1,7 +1,7 @@
 import { cargarProductos } from "../api/Inventario.js";
 import { dibujarProducto } from "../components/dibujarproducto.js";
 import { agregarCarrito, dibujarCarrito } from "../components/carrito.js";
-import{ guardarCarrito} from "../localStorage/carritoStorage.js";
+import{ guardarCarrito, obtenerCarrito} from "../localStorage/carritoStorage.js";
 import { filtrarProductos } from "../components/inventarioLogic.js";
 
 async function dashboardVendedor() {
@@ -11,7 +11,8 @@ async function dashboardVendedor() {
 
     const productos = await cargarProductos();
 
-    const carrito = [];
+    const carrito = obtenerCarrito();
+    dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
 
     productos.forEach(producto => {
 
@@ -21,7 +22,7 @@ async function dashboardVendedor() {
 
             guardarCarrito(carrito);
 
-            dibujarCarrito(carrito, contenedorCarrito);
+            dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
 
         });
 
@@ -43,7 +44,7 @@ async function dashboardVendedor() {
 
             guardarCarrito(carrito);
 
-            dibujarCarrito(carrito, contenedorCarrito);
+            dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
 
         });
 
@@ -58,4 +59,7 @@ async function dashboardVendedor() {
 
 }
 
-dashboardVendedor();
+dashboardVendedor().catch(error => {
+    console.error(error);
+    document.getElementById("productos").textContent = "No se pudieron cargar los productos: " + error.message;
+});

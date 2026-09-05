@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public interface VentaRepository extends JpaRepository<Venta, Integer> {
 
-    List<Venta> findByEstadoNot(String estado);
-    Optional<Venta> findByEstadoNotAndIdventa(String estado, Integer idventa);
+    List<Venta> findByEstadoNotIn(List<String> estados);
+    Optional<Venta> findByEstadoNotInAndIdventa(
+            List<String> estados,
+            Integer idventa
+    );
+
 }

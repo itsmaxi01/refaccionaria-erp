@@ -1,4 +1,5 @@
 package com.refaccionaria.sistemapos.pago;
+import com.refaccionaria.sistemapos.excepciones.BadRequestException;
 import com.refaccionaria.sistemapos.venta.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class PagoService {
     @Transactional
     public Pago Registrar_Pago(PagoDTO pago,Integer idVenta) {
         ventaService.validarPagoDto(pago);
+        if (pago.getMonto().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("El abono debe ser mayor a 0");
+        }
         Pago pagoR = new Pago();
         pagoR.setMetodo(pago.getMetodo());
         pagoR.setFecha(LocalDate.now());
@@ -46,7 +50,8 @@ public class PagoService {
             System.out.println("El resto es " + resultado);
         }
         else{
-            BigDecimal resultado =TotalVenta.subtract(Total);
+            BigDecimal resultado = TotalVenta.subtract(Total);
+            ventaService.actualizarVenta(idVenta, "PARCIAL");
             System.out.println("El resto es " + resultado);
 
         }
@@ -57,6 +62,17 @@ public class PagoService {
 
     public List<Pago> ListarPagos(){
         return pagoRepository.findAll();
+    }
+
+    public BigDecimal totalPagadoById(Integer id){
+
+        List<Pago> pagos = pagoRepository.findByVenta_Idventa(id);
+        BigDecimal totalPagadoById = new BigDecimal(0);
+        for(int i=0; i<pagos.size();i++){
+            Pago pagoActual = pagos.get(i);
+            totalPagadoById = totalPagadoById.add(pagoActual.getMonto());
+        }
+        return totalPagadoById;
     }
 
 
