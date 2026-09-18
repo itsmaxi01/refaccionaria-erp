@@ -55,6 +55,20 @@ button{
 #continuar{
     margin-top:15px;
 }
+
+.resumen-pago {
+    margin-top: 12px;
+}
+
+.resumen-pago p {
+    margin: 6px 0;
+}
+
+.mensaje-error {
+    min-height: 1.2em;
+    color: #b42318;
+}
+
 .productosCard {
     background: white;
     border-radius: 12px;

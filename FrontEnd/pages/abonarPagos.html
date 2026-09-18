@@ -62,13 +62,26 @@
 
             <form id="formPago">
 
+                <p>
+                    Saldo pendiente: $<strong id="saldoPendiente">0.00</strong>
+                </p>
+
+                <div class="resumen-pago" aria-live="polite">
+
+                    <p>Abono: $<strong id="montoAbonado">0.00</strong></p>
+
+                    <p id="filaCambio">Cambio: $<strong id="cambio">0.00</strong></p>
+
+                    <p id="errorPago" class="mensaje-error" role="alert"></p>
+
+                </div>
 
                 <!-- MONTO -->
 
                 <div class="campoPago">
 
-                    <label for="monto">
-                        Monto del pago
+                    <label for="montoRecibido">
+                        Monto recibido
                     </label>
 
                     <div class="inputMonto">
@@ -77,8 +90,8 @@
 
                         <input
                             type="number"
-                            id="monto"
-                            name="monto"
+                            id="montoRecibido"
+                            name="montoRecibido"
                             min="0.01"
                             step="0.01"
                             placeholder="0.00"
