@@ -1,12 +1,12 @@
 package com.refaccionaria.sistemapos.venta;
 import com.refaccionaria.sistemapos.excepciones.BadRequestException;
+import com.refaccionaria.sistemapos.excepciones.ConflictException;
 import com.refaccionaria.sistemapos.excepciones.ResourceNotFoundException;
 import com.refaccionaria.sistemapos.inventario.Inventario;
 import com.refaccionaria.sistemapos.cliente.ClienteService;
 import com.refaccionaria.sistemapos.cliente.Cliente;
 import com.refaccionaria.sistemapos.pago.PagoRepository;
 import com.refaccionaria.sistemapos.pago.Pago;
-import com.refaccionaria.sistemapos.pago.PagoService;
 import com.refaccionaria.sistemapos.pago.PagoDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,21 @@ import java.time.LocalDate;
 import com.refaccionaria.sistemapos.inventario.InventarioService;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class VentaService {
+
+    private static final Set<String> METODOS_PAGO = Set.of(
+            "EFECTIVO",
+            "TARJETA",
+            "TRANSFERENCIA"
+    );
+    private static final List<EstadoVenta> ESTADOS_LIQUIDADOS = List.of(
+            EstadoVenta.PAGADA,
+            EstadoVenta.SALDADA
+    );
 
     private final VentaRepository ventaRepository;
     private final InventarioService inventarioService;
@@ -46,7 +58,7 @@ public class VentaService {
         }
         ventaR.setFecha(LocalDate.now());
         ventaR.setTipo_venta(venta.getTipoVenta());
-        ventaR.setEstado("Pendiente"); //se calcula como pendiente de forma predeterminada
+        ventaR.setEstado(EstadoVenta.PENDIENTE); //se calcula como pendiente de forma predeterminada
         ventaRepository.save(ventaR); //guardo venta para poder utilizar el id de detalle
         return ventaR;
     }
@@ -57,8 +69,8 @@ public class VentaService {
             DetalleVenta detalle= new DetalleVenta(); //inicializo detalle
             detalle.setVenta(ventaR);
             DetalleVentaDTO  detalleVentaDTO= venta.getDetalles().get(i);
-            Inventario inventario = inventarioService.BuscarById(detalleVentaDTO.getIdInventario()); //Checo si el inventario hay stock
-            detalle.setInventario(inventario); //relleno si hay stock
+            Inventario inventario = inventarioService.BuscarById(detalleVentaDTO.getIdInventario()); //Checo si el inventario existe
+            detalle.setInventario(inventario); //relleno si existe
             inventarioService.descontar(inventario.getId_inventario(),detalleVentaDTO.getCantidad()); //descuento despues de rellenar salta error si la cantidad no es suficiente
             detalle.setCantidad(detalleVentaDTO.getCantidad());
             if(detalleVentaDTO.getPrecioUnitario() !=null ){
@@ -73,7 +85,7 @@ public class VentaService {
             BigDecimal subtotal = detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad()));
             detalle.setSubtotal(subtotal);
             detalleVentaService.GuardarDetalle(detalle);
-            total = total.add(subtotal); //version MVP sin busqueda en la db para debuggear
+            total = total.add(subtotal);
         }
         return total;
 
@@ -83,26 +95,21 @@ public class VentaService {
         pago.setFecha(LocalDate.now());
         pago.setVenta(ventaR);
         pago.setMetodo(venta.getPago().getMetodo());
-        pago.setMonto(venta.getPago().getMonto());
+        pago.setMonto_recibido(venta.getPago().getMonto_recibido());
+        pago.setMonto_abonado(venta.getPago().getMonto_abonado());
         BigDecimal zero = new BigDecimal(0);
-        if(total.compareTo(pago.getMonto()) <= 0){
-            ventaR.setEstado("PAGADA");
-            System.out.println("El saldo a regresar es de " + pago.getMonto().subtract(total));
+
+        if(total.compareTo(pago.getMonto_abonado()) == 0){
+            ventaR.setEstado(EstadoVenta.PAGADA);
         }
-        //con edge cases de credito refactor despues
-        else if(pago.getMonto().compareTo(zero) > 0 ){
-            if(ventaR.getCliente() == null){
-                throw new BadRequestException("No se puedehacer una venta a credito sin ser cliente");
-            }
-            ventaR.setEstado("PARCIAL");
-            System.out.println("El saldo a pagar es de " + total.subtract(pago.getMonto()));
+        else if(total.compareTo(pago.getMonto_abonado()) < 0){
+            throw new ConflictException("El monto abonado no puede superar el total de la venta");
         }
-        else if(pago.getMonto().compareTo(zero) <= 0 ){
+        else if(pago.getMonto_abonado().compareTo(zero) > 0 ){
             if(ventaR.getCliente() == null){
-                throw new BadRequestException("No se puedehacer una venta a credito sin ser cliente");
+                throw new BadRequestException("No se puede realizar una venta parcial sin un cliente");
             }
-            ventaR.setEstado("PENDIENTE");
-            System.out.println("El saldo a pagar es de " + total.subtract(pago.getMonto()));
+            ventaR.setEstado(EstadoVenta.PARCIAL);
         }
         pagoRepository.save(pago);
     }
@@ -115,21 +122,25 @@ public class VentaService {
       return ventaRepository.save(ventaR);
     }
 
-    public void actualizarVenta(Integer idVenta,String Estado){
-        Venta venta = ventaRepository.findById(idVenta).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-        venta.setEstado(Estado);
+    public void actualizarVenta(Integer idVenta, EstadoVenta estado){
+        Venta venta = ventaRepository.findById(idVenta)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada"));
+        venta.setEstado(estado);
     }
 
     //refactoirzar despues
     private void validarVentaDto(VentaDto venta){
-        if(venta == null || venta.getTipoVenta() == null){
-            throw new BadRequestException("venta es null o se necesita especificar tipo de venta");
+        if(venta == null){
+            throw new BadRequestException("La venta no puede ser nula");
+        }
+        if(venta.getTipoVenta() == null){
+            throw new BadRequestException("Debe especificar el tipo de venta");
         }
 
     }
     private void validarDetallesDto(List<DetalleVentaDTO> detalles){
         if(detalles == null || detalles.isEmpty() ){
-            throw new BadRequestException("Detalles nulos");
+            throw new BadRequestException("La venta debe incluir al menos un detalle");
         }
         for(int i=0; i<detalles.size();i++){
            DetalleVentaDTO detalle = detalles.get(i);
@@ -143,48 +154,55 @@ public class VentaService {
                throw new BadRequestException("El precio unitario del detalle " + (i + 1) + " debe ser mayor a 0");
            }
            if(detalle.getIdInventario() == null){
-               throw new BadRequestException("El detalle vene tener inventario" );
+               throw new BadRequestException("El detalle " + (i + 1) + " debe especificar un inventario");
            }
 
         }
     }
     public void validarPagoDto(PagoDTO pago){       //se reutilizara en pagos
         BigDecimal zero = new BigDecimal(0);
-        if(pago == null || pago.getMonto() == null){
-            throw new BadRequestException("El pago o el monto no puede ser nulo");
+        if(pago == null || pago.getMonto_abonado() == null ||  pago.getMonto_recibido() == null){
+            throw new BadRequestException("El pago y sus montos son obligatorios");
         }
-        if(pago.getMetodo() == null){
-            throw new BadRequestException("Elija un metodo");
+        if(pago.getMetodo() == null || pago.getMetodo().isBlank()){
+            throw new BadRequestException("Debe elegir un método de pago");
         }
-        if(pago.getMonto().compareTo(zero) < 0){
-            throw new BadRequestException("El pago es de 0 ");
+
+        String metodo = pago.getMetodo().trim().toUpperCase(Locale.ROOT);
+        if (!METODOS_PAGO.contains(metodo)) {
+            throw new BadRequestException("Método de pago no válido");
+        }
+        pago.setMetodo(metodo);
+
+        if(pago.getMonto_abonado().compareTo(pago.getMonto_recibido()) > 0){
+            throw new BadRequestException("El monto a abonar no puede ser mayor que el monto recibido");
+        }
+        if(pago.getMonto_recibido().compareTo(zero) <= 0){
+            throw new BadRequestException("El monto recibido debe ser mayor a 0");
+        }
+        if(pago.getMonto_abonado().compareTo(zero) <= 0){
+            throw new BadRequestException("El monto abonado debe ser mayor a 0");
+        }
+
+        if (!"EFECTIVO".equals(metodo)
+                && pago.getMonto_abonado().compareTo(pago.getMonto_recibido()) != 0) {
+            throw new BadRequestException(
+                    "En tarjeta o transferencia el monto abonado debe ser igual al monto recibido"
+            );
         }
     }
     public Venta BuscarById(Integer id){
-        return ventaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+        return ventaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada"));
     }
-
-     //DEFINO CONSTANTE PARA PAGADA
-    public List<Venta> VentasPendientes(){
-        return ventaRepository.findByEstadoNotIn(estados); //da pendientes, y parciales
-    }
-
-    List<String> estados = List.of("PAGADA", "SALDADA");
 
     public Venta VentaPendienteById(Integer id){
-        return ventaRepository.findByEstadoNotInAndIdventa(estados,id).orElseThrow(() -> new ResourceNotFoundException("Pues alch no hay nada we"));
+        return ventaRepository.findByEstadoNotInAndIdventa(ESTADOS_LIQUIDADOS,id)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta pendiente no encontrada"));
     }
 
     public List<Venta> ventasPendientes(){
-        List<String> estados = List.of("PAGADA", "SALDADA");
-        List<Venta> ventas = ventaRepository.findByEstadoNotIn(estados);
-        for(int i=0;i<ventas.size();i++){
-            Venta ventaActual = ventas.get(i);
-            System.out.printf("Cliente: %s%n", ventaActual.getCliente().getNombre());
-
-
-        }
-        return ventas;
+        return ventaRepository.findByEstadoNotIn(ESTADOS_LIQUIDADOS);
     }
 
 

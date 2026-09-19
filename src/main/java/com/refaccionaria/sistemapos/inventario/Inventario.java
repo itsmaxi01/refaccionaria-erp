@@ -19,6 +19,8 @@ public class Inventario {
 
     private String ubicacion;
 
+    private Boolean activo = true;
+
     public Inventario() {
     }
 
@@ -37,6 +39,9 @@ public class Inventario {
     public String getUbicacion() {
         return ubicacion;
     }
+    public Boolean getActivo(){
+        return activo;
+    }
 
     public void setProducto(Producto producto) {
         this.producto = producto;
@@ -49,4 +54,6 @@ public class Inventario {
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
     }
+
+    public void setActivo(Boolean activo){ this.activo = activo;}
 }

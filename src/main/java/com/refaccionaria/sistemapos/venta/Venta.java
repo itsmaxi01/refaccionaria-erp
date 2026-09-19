@@ -14,7 +14,8 @@ public class Venta {
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
     private LocalDate fecha;
-    private String estado;
+    @Enumerated(EnumType.STRING)
+    private EstadoVenta estado;
     private String tipo_venta;
 
     public Venta(){
@@ -45,11 +46,11 @@ public class Venta {
         this.fecha = fecha;
     }
 
-    public String getEstado() {
+    public EstadoVenta getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoVenta estado) {
         this.estado = estado;
     }
 

@@ -5,16 +5,25 @@ import java.math.BigDecimal;
 
 public class PagoDTO {
 
-    private BigDecimal monto;
+    private BigDecimal monto_abonado;
+    private BigDecimal monto_recibido;
     private String metodo;
 
-    public BigDecimal getMonto() {
-        return monto;
+    public BigDecimal getMonto_recibido() {
+        return monto_recibido;
     }
 
-    public void setMonto(BigDecimal monto) {
-        this.monto = monto;
+    public void setMonto_recibido(BigDecimal monto_recibido) {
+        this.monto_recibido = monto_recibido;
     }
+
+    public BigDecimal getMonto_abonado() {
+        return monto_abonado;
+    }
+    public void setMonto_abonado(BigDecimal monto_abonado) {
+        this.monto_abonado = monto_abonado;
+    }
+
 
     public String getMetodo() {
         return metodo;

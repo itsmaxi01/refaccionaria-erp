@@ -17,7 +17,8 @@ public class Pago {
     @ManyToOne
     @JoinColumn(name = "id_venta")
     private Venta venta;
-    private BigDecimal monto;
+    private BigDecimal monto_abonado;
+    private BigDecimal monto_recibido;
     private String metodo;
     private LocalDate fecha;
 
@@ -42,13 +43,21 @@ public class Pago {
         this.venta = venta;
     }
 
-    public BigDecimal getMonto() {
-        return monto;
+    public BigDecimal getMonto_abonado() {
+        return monto_abonado;
     }
 
-    public void setMonto(BigDecimal monto) {
-        this.monto = monto;
+    public void setMonto_abonado(BigDecimal monto_abonado) {
+        this.monto_abonado = monto_abonado;
     }
+    public BigDecimal getMonto_recibido() {
+        return monto_recibido;
+    }
+
+    public void setMonto_recibido(BigDecimal monto_recibido) {
+        this.monto_recibido = monto_recibido;
+    }
+
 
     public String getMetodo() {
         return metodo;

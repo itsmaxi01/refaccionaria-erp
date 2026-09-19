@@ -1,11 +1,6 @@
 
 package com.refaccionaria.sistemapos.inventario;
 
-import com.refaccionaria.sistemapos.producto.Producto;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,5 +36,10 @@ public class InventarioController {
             @PathVariable Integer cantidad
     ){
         return inventarioservice.descontar(idInventario, cantidad);
+    }
+
+    @DeleteMapping("/{idInventario}")
+    public Inventario borrarById(@PathVariable Integer idInventario) {
+        return inventarioservice.BorrarById(idInventario);
     }
 }

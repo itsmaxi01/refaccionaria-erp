@@ -1,5 +1,5 @@
 package com.refaccionaria.sistemapos.pago;
-import com.refaccionaria.sistemapos.excepciones.BadRequestException;
+import com.refaccionaria.sistemapos.excepciones.ConflictException;
 import com.refaccionaria.sistemapos.venta.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -28,33 +28,33 @@ public class PagoService {
     @Transactional
     public Pago Registrar_Pago(PagoDTO pago,Integer idVenta) {
         ventaService.validarPagoDto(pago);
-        if (pago.getMonto().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("El abono debe ser mayor a 0");
-        }
         Pago pagoR = new Pago();
         pagoR.setMetodo(pago.getMetodo());
         pagoR.setFecha(LocalDate.now());
-        pagoR.setMonto(pago.getMonto());
+        pagoR.setMonto_recibido(pago.getMonto_recibido());
+        pagoR.setMonto_abonado(pago.getMonto_abonado());
         pagoR.setVenta(ventaService.VentaPendienteById(idVenta));// Busca si la venta es esta saldada
-        pagoRepository.save(pagoR);
-        List<Pago> pagos = pagoRepository.findByVenta_Idventa(idVenta);
+        List<Pago> pagos = pagoRepository.findByVenta_Idventa(idVenta); //regresa todos los pagos de una venta
         BigDecimal Total = new BigDecimal(0);
         BigDecimal TotalVenta = detalleVentaService.TotalByVenta(idVenta);
         for(int i=0;i<pagos.size();i++){
             Pago pagoSelect = pagos.get(i);
-            Total = Total.add(pagoSelect.getMonto());
+            Total = Total.add(pagoSelect.getMonto_abonado()); //remplazar despues por total pagado
         }
-        if(Total.compareTo(TotalVenta)>=0){
-            ventaService.actualizarVenta(idVenta,"SALDADA");
-            BigDecimal resultado =Total.subtract(TotalVenta);
-            System.out.println("El resto es " + resultado);
+        Total = Total.add(pago.getMonto_abonado());
+        if(Total.compareTo(TotalVenta)>0){
+            BigDecimal resto = new BigDecimal(0);
+            resto = Total.subtract(pago.getMonto_abonado());
+            resto = TotalVenta.subtract(resto);
+            throw new ConflictException("El pago excede el saldo pendiente de " + resto);
+        }
+        else if(Total.compareTo(TotalVenta) == 0){
+            ventaService.actualizarVenta(idVenta, EstadoVenta.SALDADA);
         }
         else{
-            BigDecimal resultado = TotalVenta.subtract(Total);
-            ventaService.actualizarVenta(idVenta, "PARCIAL");
-            System.out.println("El resto es " + resultado);
-
+            ventaService.actualizarVenta(idVenta, EstadoVenta.PARCIAL);
         }
+        pagoRepository.save(pagoR);
         return pagoR;
     }
 
@@ -70,7 +70,7 @@ public class PagoService {
         BigDecimal totalPagadoById = new BigDecimal(0);
         for(int i=0; i<pagos.size();i++){
             Pago pagoActual = pagos.get(i);
-            totalPagadoById = totalPagadoById.add(pagoActual.getMonto());
+            totalPagadoById = totalPagadoById.add(pagoActual.getMonto_abonado());
         }
         return totalPagadoById;
     }

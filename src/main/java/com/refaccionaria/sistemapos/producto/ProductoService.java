@@ -23,12 +23,6 @@ public class ProductoService {
     }
 
     public Producto AgregarProducto(Producto producto) {
-        /*System.out.println("ID: " + producto.getIdproducto());
-        System.out.println("Código de barras: " + producto.getCodigo_barras());
-        System.out.println("Nombre: " + producto.getNombre());
-        System.out.println("Tipo: " + producto.getTipo());
-        System.out.println("Precio: " + producto.getPrecio());
-        System.out.println("Activo: " + producto.getActivo());*/ //debugg
         return productoRepository.save(producto);
     }
 
@@ -41,7 +35,7 @@ public class ProductoService {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         if(inventarioService.ExistenciaByProducto(id)){
-            throw new ConflictException("Hay un producto en stock, intente mas tarde");
+            throw new ConflictException("No se puede desactivar el producto mientras tenga inventario con stock");
         }
         producto.setActivo(false);
         return productoRepository.save(producto);
