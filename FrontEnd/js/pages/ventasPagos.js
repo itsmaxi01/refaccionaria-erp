@@ -1,6 +1,6 @@
-import { ventasPendiente, totalByIdVenta, totaPagadoByIdVenta } from "../api/ventaPendiente.js";
+import { ventasPendiente, totalByIdVenta, totalPagadoByIdVenta } from "../api/ventaPendiente.js";
 import { dibujarVentas } from "../components/dibujarVentas.js";
-import { filtrarVentasPendientes } from "../components/pagosLogic.js";
+import { filtrarVentasPendientes } from "../domain/filtros.js";
 
 async function ventasPagos() {
     const contenedor = document.getElementById("ventasPendientes");
@@ -14,12 +14,12 @@ async function ventasPagos() {
         const ventas = [];
         for (const venta of pendientes) {
             const [total, totalPagado] = await Promise.all([
-                totalByIdVenta(venta.idventa), totaPagadoByIdVenta(venta.idventa)
+                totalByIdVenta(venta.idventa), totalPagadoByIdVenta(venta.idventa)
             ]);
             ventas.push({ ...venta, total, totalPagado });
         }
         const filtrar = () => dibujarVentas(
-            filtrarVentasPendientes(buscador.value.toLowerCase(), ventas), contenedor
+            filtrarVentasPendientes(ventas, buscador.value.toLowerCase()), contenedor
         );
         buscador.addEventListener("input", filtrar);
         botonBuscar.addEventListener("click", filtrar);

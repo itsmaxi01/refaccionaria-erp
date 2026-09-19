@@ -1,32 +1,28 @@
 import { cargarProductos } from "../api/Inventario.js";
-import { dibujarProducto } from "../components/dibujarproducto.js";
-import { agregarCarrito, dibujarCarrito } from "../components/carrito.js";
+import { dibujarProductos } from "../components/dibujarproducto.js";
+import { dibujarCarrito } from "../components/carritoView.js";
 import{ guardarCarrito, obtenerCarrito} from "../localStorage/carritoStorage.js";
-import { filtrarProductos } from "../components/inventarioLogic.js";
+import { agregarAlCarrito } from "../domain/carrito.js";
+import { filtrarProductos } from "../domain/filtros.js";
 
 async function dashboardVendedor() {
 
     const contenedorProductos = document.getElementById("productos");
     const contenedorCarrito = document.getElementById("carrito");
+    const subtotalElemento = document.getElementById("subtotal");
 
     const productos = await cargarProductos();
 
     const carrito = obtenerCarrito();
-    dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
+    dibujarCarrito(carrito, contenedorCarrito, subtotalElemento, guardarCarrito);
 
-    productos.forEach(producto => {
+    const agregarProducto = idInventario => {
+        agregarAlCarrito(carrito, productos, idInventario);
+        guardarCarrito(carrito);
+        dibujarCarrito(carrito, contenedorCarrito, subtotalElemento, guardarCarrito);
+    };
 
-        dibujarProducto(producto, contenedorProductos, idInventario => {
-
-            agregarCarrito(carrito, productos, idInventario);
-
-            guardarCarrito(carrito);
-
-            dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
-
-        });
-
-    });
+    dibujarProductos(productos, contenedorProductos, agregarProducto);
 
    
 //escucha si alguien escribe
@@ -34,29 +30,10 @@ async function dashboardVendedor() {
     buscador.addEventListener("input", (event) => {
         const textoBuscado = buscador.value.toLowerCase();
         const productosFiltrados=filtrarProductos(productos, textoBuscado); //pasarle la funcion de busqueda que filtre los productos y los devuelva 
-        contenedorProductos.innerHTML = "";
-        
-    productosFiltrados.forEach(producto => {
-
-        dibujarProducto(producto, contenedorProductos, idInventario => {
-
-            agregarCarrito(carrito, productos, idInventario);
-
-            guardarCarrito(carrito);
-
-            dibujarCarrito(carrito, contenedorCarrito, guardarCarrito);
-
-        });
-
-    });
+        dibujarProductos(productosFiltrados, contenedorProductos, agregarProducto);
         
 
         });
-   
-   
-    //dibujar los productos filtrados 
-
-
 }
 
 dashboardVendedor().catch(error => {

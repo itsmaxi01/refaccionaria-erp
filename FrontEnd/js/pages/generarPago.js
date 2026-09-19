@@ -1,8 +1,8 @@
 import { obtenerCliente } from "../api/Clientes.js";
 import { dibujarCliente } from "../components/dibujarClientes.js";
 import { generarPagos } from "../api/generarPago.js";
-import { totalByIdVenta, totaPagadoByIdVenta } from "../api/ventaPendiente.js";
-import { calcularPago } from "../components/pagosLogic.js";
+import { totalByIdVenta, totalPagadoByIdVenta } from "../api/ventaPendiente.js";
+import { crearControlPago } from "../components/pagoForm.js";
 
 
 
@@ -21,16 +21,11 @@ if (!Number.isInteger(idCliente) || idCliente <= 0) {
     throw new Error("El cliente indicado no es valido");
 }
 
-console.log("idVenta:", idVenta);
-console.log("idCliente:", idCliente);
-
 //traer cliente completo 
 const cliente = await obtenerCliente(idCliente);
-console.log("cliente:", cliente);
 
 //obtener contenedores
 const contenedorCliente = document.getElementById("cliente");
-console.log("contenedorCliente:", contenedorCliente);
 dibujarCliente(contenedorCliente,cliente);
 
 
@@ -43,7 +38,7 @@ const cambioElemento = document.getElementById("cambio");
 const filaCambio = document.getElementById("filaCambio");
 const errorPago = document.getElementById("errorPago");
 const totalVenta = Number(await totalByIdVenta(idVenta));
-const totalPagado = Number(await totaPagadoByIdVenta(idVenta));
+const totalPagado = Number(await totalPagadoByIdVenta(idVenta));
 const saldoPendiente = Number((totalVenta - totalPagado).toFixed(2));
 
 if (!Number.isFinite(totalVenta) || !Number.isFinite(totalPagado)) {
@@ -57,29 +52,15 @@ if (saldoPendiente <= 0) {
     throw new Error("La venta ya no tiene saldo pendiente");
 }
 
-function actualizarResumenPago() {
-    try {
-        const { pago, cambio } = calcularPago(
-            montoRecibidoInput.value,
-            saldoPendiente,
-            metodoInput.value
-        );
-
-        montoAbonadoElemento.textContent = pago.monto_abonado.toFixed(2);
-        cambioElemento.textContent = cambio.toFixed(2);
-        filaCambio.hidden = pago.metodo !== "EFECTIVO";
-        errorPago.textContent = "";
-    } catch (error) {
-        montoAbonadoElemento.textContent = "0.00";
-        cambioElemento.textContent = "0.00";
-        filaCambio.hidden = metodoInput.value !== "EFECTIVO";
-        errorPago.textContent = montoRecibidoInput.value ? error.message : "";
-    }
-}
-
-montoRecibidoInput.addEventListener("input", actualizarResumenPago);
-metodoInput.addEventListener("change", actualizarResumenPago);
-actualizarResumenPago();
+const controlPago = crearControlPago({
+    montoInput: montoRecibidoInput,
+    metodoInput,
+    montoAbonadoElemento,
+    cambioElemento,
+    filaCambio,
+    errorElemento: errorPago,
+    obtenerSaldo: () => saldoPendiente
+});
 
 formPago.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -87,13 +68,7 @@ formPago.addEventListener("submit", async (event) => {
     botonPago.disabled = true;
 
     try {
-        const { pago } = calcularPago(
-            montoRecibidoInput.value,
-            saldoPendiente,
-            metodoInput.value
-        );
-
-        await generarPagos(pago, idVenta);
+        await generarPagos(controlPago.obtenerPago(), idVenta);
 
         window.location.href = "../index.html";
 

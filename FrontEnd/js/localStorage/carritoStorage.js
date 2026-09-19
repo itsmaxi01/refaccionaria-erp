@@ -4,7 +4,6 @@ export function guardarCarrito(carrito) {
         "carrito",
         JSON.stringify(carrito)
     );
-    console.log("Carrito guardado en localStorage:", carrito);
 
 }
 

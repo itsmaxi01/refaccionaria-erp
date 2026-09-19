@@ -1,13 +1,5 @@
 
-export function dibujarTotal(total,totalPagado)
-    {
-    const totalElemento = document.getElementById("total");
-    const totalPagadoElemento = document.getElementById("totalPagado");
-
+export function dibujarTotal(total, totalPagado, totalElemento, totalPagadoElemento) {
     totalElemento.textContent = total;
     totalPagadoElemento.textContent = totalPagado;
-
-
-
-
-    }
+}

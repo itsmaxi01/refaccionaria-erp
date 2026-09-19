@@ -1,12 +1,3 @@
-export function filtrarVentasPendientes(textoBuscado,ventas){
-  
-  
-    const ventasFiltradas = ventas.filter(venta =>
-    (venta.cliente?.nombre ?? "Sin cliente").toLowerCase().includes(textoBuscado)
-);
-    return ventasFiltradas;
-}
-
 function redondearDinero(valor) {
     return Math.round((valor + Number.EPSILON) * 100) / 100;
 }

@@ -4,7 +4,7 @@ import { dibujarDetalleVenta } from "../components/dibujarDetalleVenta.js";
 import { obtenerCarrito } from "../localStorage/carritoStorage.js";
 import { eliminarCarrito } from "../localStorage/carritoStorage.js";
 import { registrarVenta } from "../api/Venta.js";
-import { calcularPago } from "../components/pagosLogic.js";
+import { crearControlPago } from "../components/pagoForm.js";
 
 
 async function detalleVenta() {
@@ -23,7 +23,6 @@ async function detalleVenta() {
     const errorPago = document.getElementById("errorPago");
 
     const clientes = await cargarClientes();
-    console.log(clientes);
     const carrito = obtenerCarrito();
 
     if (!Array.isArray(carrito) || carrito.length === 0) {
@@ -46,11 +45,7 @@ async function detalleVenta() {
     };
 
     let pagoEditado = false;
-    montoPago.addEventListener("input", () => {
-        pagoEditado = true;
-        actualizarResumenPago();
-    });
-    metodoPago.addEventListener("change", actualizarResumenPago);
+    montoPago.addEventListener("input", () => { pagoEditado = true; });
 
     function obtenerTotalVenta() {
         return venta.detalles.reduce(
@@ -59,25 +54,15 @@ async function detalleVenta() {
         );
     }
 
-    function actualizarResumenPago() {
-        try {
-            const { pago, cambio } = calcularPago(
-                montoPago.value,
-                obtenerTotalVenta(),
-                metodoPago.value
-            );
-
-            montoAbonadoElemento.textContent = pago.monto_abonado.toFixed(2);
-            cambioElemento.textContent = cambio.toFixed(2);
-            filaCambio.hidden = pago.metodo !== "EFECTIVO";
-            errorPago.textContent = "";
-        } catch (error) {
-            montoAbonadoElemento.textContent = "0.00";
-            cambioElemento.textContent = "0.00";
-            filaCambio.hidden = metodoPago.value !== "EFECTIVO";
-            errorPago.textContent = montoPago.value ? error.message : "";
-        }
-    }
+    const controlPago = crearControlPago({
+        montoInput: montoPago,
+        metodoInput: metodoPago,
+        montoAbonadoElemento,
+        cambioElemento,
+        filaCambio,
+        errorElemento: errorPago,
+        obtenerSaldo: obtenerTotalVenta
+    });
 
     function actualizarSubtotal() {
 
@@ -87,7 +72,7 @@ async function detalleVenta() {
 
         // Opcional: llenar automáticamente el monto de pago
         if (!pagoEditado) montoPago.value = subtotal.toFixed(2);
-        actualizarResumenPago();
+        controlPago.actualizar();
     }
 
     // Calcula el subtotal inicial
@@ -103,8 +88,6 @@ async function detalleVenta() {
                 ? Number(clienteSeleccionado)
                 : null;
 
-            console.log(venta);
-
         }
     );
 
@@ -118,8 +101,6 @@ async function detalleVenta() {
             venta.detalles = detallesActualizados;
 
             actualizarSubtotal();
-
-            console.log(venta);
 
         }
     );
@@ -145,12 +126,7 @@ async function detalleVenta() {
             throw new Error("Selecciona un tipo de venta");
         }
 
-        const { pago } = calcularPago(
-            montoPago.value,
-            obtenerTotalVenta(),
-            metodoPago.value
-        );
-        venta.pago = pago;
+        venta.pago = controlPago.obtenerPago();
 
         await registrarVenta(venta);
         eliminarCarrito();

@@ -3,15 +3,16 @@ export function dibujarProducto(inventario, contenedor, alAgregar) {
     const producto = document.createElement("div");
     producto.classList.add("producto");
 
-    producto.innerHTML = `
-        <h3>${inventario.producto.nombre}</h3>
-
-        <p>Código: ${inventario.producto.codigo_barras}</p>
-
-        <p>Precio: $${inventario.producto.precio}</p>
-
-        <p>Cantidad: ${inventario.cantidad}</p>
-    `;
+    for (const [etiqueta, texto] of [
+        ["h3", inventario.producto.nombre],
+        ["p", "Código: " + inventario.producto.codigo_barras],
+        ["p", "Precio: $" + inventario.producto.precio],
+        ["p", "Cantidad: " + inventario.cantidad]
+    ]) {
+        const elemento = document.createElement(etiqueta);
+        elemento.textContent = texto;
+        producto.appendChild(elemento);
+    }
 
     const boton = document.createElement("button");
     boton.textContent = "Agregar";
@@ -23,4 +24,11 @@ export function dibujarProducto(inventario, contenedor, alAgregar) {
     producto.appendChild(boton);
     contenedor.appendChild(producto);
 
+}
+
+export function dibujarProductos(inventarios, contenedor, alAgregar) {
+    contenedor.replaceChildren();
+    inventarios.forEach(inventario =>
+        dibujarProducto(inventario, contenedor, alAgregar)
+    );
 }

@@ -1,18 +1,17 @@
-export async function dibujarDetalles(detalles, contenedorDetalles) {
-
-    console.log(detalles);
-
+export function dibujarDetalles(detalles, contenedorDetalles) {
+    contenedorDetalles.replaceChildren();
     detalles.forEach(detalle => {
-
-        contenedorDetalles.innerHTML += `
-            <tr>
-                <td>${detalle.inventario.producto.nombre}</td>
-                <td>${detalle.cantidad}</td>
-                <td>${detalle.precioUnitario}</td>
-                <td>${detalle.subtotal}</td>
-            </tr>
-        `;
-
+        const fila = document.createElement("tr");
+        for (const valor of [
+            detalle.inventario.producto.nombre,
+            detalle.cantidad,
+            detalle.precioUnitario,
+            detalle.subtotal
+        ]) {
+            const celda = document.createElement("td");
+            celda.textContent = valor;
+            fila.appendChild(celda);
+        }
+        contenedorDetalles.appendChild(fila);
     });
-
 }
