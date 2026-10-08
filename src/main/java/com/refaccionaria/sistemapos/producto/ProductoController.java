@@ -14,19 +14,21 @@ public class ProductoController {
     }
 
     @GetMapping
-    public List<Producto> listarProductos() {
+    public List<ProductoDTO> listarProductos() {
 
-        return productoService.listarProductos();
+        return productoService.listarProductos().stream()
+                .map(ProductoDTO::fromEntity)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public Producto BuscarById(@PathVariable Integer id) {
-        return productoService.BuscarById(id);
+    public ProductoDTO BuscarById(@PathVariable Integer id) {
+        return ProductoDTO.fromEntity(productoService.BuscarById(id));
     }
 
     @PostMapping
-    public Producto AgregarProducto(@RequestBody Producto producto) {
-        return productoService.AgregarProducto(producto);
+    public ProductoDTO AgregarProducto(@RequestBody ProductoDTO producto) {
+        return ProductoDTO.fromEntity(productoService.AgregarProducto(producto.toEntity()));
     }
 
     @DeleteMapping("/{id}")

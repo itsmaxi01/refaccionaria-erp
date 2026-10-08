@@ -15,13 +15,15 @@ public class PagoController {
     }
 
     @GetMapping
-    public List<Pago> ListarPagos() {
-        return pagoService.ListarPagos();
+    public List<PagoResponseDTO> ListarPagos() {
+        return pagoService.ListarPagos().stream()
+                .map(PagoResponseDTO::fromEntity)
+                .toList();
     }
 
     @PostMapping("/{idVenta}")
-    public Pago registrarPago(@RequestBody PagoDTO pago, @PathVariable Integer idVenta) {
-        return pagoService.Registrar_Pago(pago, idVenta);
+    public PagoResponseDTO registrarPago(@RequestBody PagoDTO pago, @PathVariable Integer idVenta) {
+        return PagoResponseDTO.fromEntity(pagoService.Registrar_Pago(pago, idVenta));
     }
     @GetMapping("/Venta/{idVenta}")
     public BigDecimal totalPagadoById(@PathVariable Integer idVenta) {

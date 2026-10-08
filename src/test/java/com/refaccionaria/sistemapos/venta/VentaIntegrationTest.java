@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,6 +72,18 @@ class VentaIntegrationTest {
         assertEquals(1, detalleVentaRepository.count());
         assertEquals(1, pagoRepository.count());
         assertEquals(18, inventarioRepository.findById(inventario.getId_inventario()).orElseThrow().getCantidad());
+
+        Venta venta = ventaRepository.findAll().getFirst();
+        mockMvc.perform(get("/detallesVentas/{idVenta}", venta.getIdventa()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"idDetalle\"")))
+                .andExpect(content().string(containsString("\"inventario\"")))
+                .andExpect(content().string(containsString("\"precioUnitario\":15.50")));
+
+        mockMvc.perform(get("/Pago"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"idpago\"")))
+                .andExpect(content().string(containsString("\"monto_abonado\":31.00")));
     }
 
     @Test
@@ -114,6 +127,57 @@ class VentaIntegrationTest {
 
         assertEquals(EstadoVenta.SALDADA, ventaRepository.findById(venta.getIdventa()).orElseThrow().getEstado());
         assertEquals(2, pagoRepository.findByVenta_Idventa(venta.getIdventa()).size());
+    }
+
+    @Test
+    void dtosDeCatalogosConservanEntradasYContratoJson() throws Exception {
+        mockMvc.perform(post("/productos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "codigo_barras": "ABC-123",
+                                  "nombre": "Producto DTO",
+                                  "tipo": "PRUEBA",
+                                  "precio": 12.50
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"codigo_barras\":\"ABC-123\"")))
+                .andExpect(content().string(containsString("\"activo\":true")));
+
+        Producto producto = productoRepository.findAll().getFirst();
+        mockMvc.perform(post("/Inventario")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "producto": {"idproducto": %d},
+                                  "cantidad": 7,
+                                  "ubicacion": "A-DTO"
+                                }
+                                """.formatted(producto.getIdproducto())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"id_inventario\"")))
+                .andExpect(content().string(containsString("\"producto\"")))
+                .andExpect(content().string(containsString("\"cantidad\":7")));
+
+        mockMvc.perform(post("/Clientes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Cliente DTO",
+                                  "telefono": "5551234567",
+                                  "direccion": "Dirección DTO",
+                                  "tipoCliente": "MINORISTA"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"idCliente\"")))
+                .andExpect(content().string(containsString("\"tipoCliente\":\"MINORISTA\"")))
+                .andExpect(content().string(containsString("\"activo\":true")));
+
+        mockMvc.perform(get("/productos/{id}", producto.getIdproducto()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"idproducto\":" + producto.getIdproducto())));
     }
 
     private Inventario guardarInventario(String nombre, String precio, int cantidad) {

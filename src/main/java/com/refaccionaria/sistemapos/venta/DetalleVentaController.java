@@ -19,13 +19,17 @@ public class DetalleVentaController {
             return detalleVentaService.TotalByVenta(idVenta);
     }
     @GetMapping
-    public List<DetalleVenta> listarDetalles(){
-            return detalleVentaService.ListarDetalles();
+    public List<DetalleVentaResponseDTO> listarDetalles(){
+            return detalleVentaService.ListarDetalles().stream()
+                    .map(DetalleVentaResponseDTO::fromEntity)
+                    .toList();
     }
 
     @GetMapping("/{idVenta}")
-    public List<DetalleVenta> listarDetallesByIdVenta(@PathVariable Integer idVenta){
-        return detalleVentaService.ListarDetallesById(idVenta);
+    public List<DetalleVentaResponseDTO> listarDetallesByIdVenta(@PathVariable Integer idVenta){
+        return detalleVentaService.ListarDetallesById(idVenta).stream()
+                .map(DetalleVentaResponseDTO::fromEntity)
+                .toList();
     }
 
 

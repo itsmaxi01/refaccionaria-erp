@@ -14,27 +14,29 @@ public class ClienteController {
     }
 
     @GetMapping
-    public List<Cliente> ListarClientes() {
-        return clienteService.ListarClientes();
+    public List<ClienteDTO> ListarClientes() {
+        return clienteService.ListarClientes().stream()
+                .map(ClienteDTO::fromEntity)
+                .toList();
     }
 
     @PostMapping
-    public Cliente AgregarCliente(@RequestBody Cliente cliente) {
-        return clienteService.AgregarCliente(cliente);
+    public ClienteDTO AgregarCliente(@RequestBody ClienteDTO cliente) {
+        return ClienteDTO.fromEntity(clienteService.AgregarCliente(cliente.toEntity()));
     }
 
     @DeleteMapping("/{id}")
-    public Cliente EliminarCliente(@PathVariable Integer id) {
-        return clienteService.EliminarClienteById(id);
+    public ClienteDTO EliminarCliente(@PathVariable Integer id) {
+        return ClienteDTO.fromEntity(clienteService.EliminarClienteById(id));
     }
     @PutMapping
-    public Cliente ModificarCliente(@RequestBody Cliente cliente){
-        return clienteService.ModificarCliente(cliente);
+    public ClienteDTO ModificarCliente(@RequestBody ClienteDTO cliente){
+        return ClienteDTO.fromEntity(clienteService.ModificarCliente(cliente.toEntity()));
     }
 
     @GetMapping("/Clientes/{idCliente}")
-    public Cliente BuscarClienteById(@PathVariable Integer idCliente) {
-        return clienteService.BuscarById(idCliente);
+    public ClienteDTO BuscarClienteById(@PathVariable Integer idCliente) {
+        return ClienteDTO.fromEntity(clienteService.BuscarById(idCliente));
     }
 
 

@@ -17,13 +17,17 @@ public class VentaController {
 
 
     @PostMapping
-    public Venta RealizarVenta(@RequestBody VentaDto venta){
-        return ventaService.crearVenta(venta);
+    public VentaResponseDTO RealizarVenta(@RequestBody VentaDto venta){
+        return VentaResponseDTO.fromEntity(ventaService.crearVenta(venta));
     }
 
 
     @GetMapping
-    public List<Venta> ventasPendientes(){ return ventaService.ventasPendientes();}
+    public List<VentaResponseDTO> ventasPendientes(){
+        return ventaService.ventasPendientes().stream()
+                .map(VentaResponseDTO::fromEntity)
+                .toList();
+    }
 
 
 

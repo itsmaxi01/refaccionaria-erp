@@ -16,30 +16,34 @@ public class InventarioController {
     }
 
     @GetMapping
-    public List<Inventario> ListarInventario() {
-        return inventarioservice.ListarInventario();
+    public List<InventarioDTO> ListarInventario() {
+        return inventarioservice.ListarInventario().stream()
+                .map(InventarioDTO::fromEntity)
+                .toList();
     }
 
     @PostMapping
-    public Inventario GuardarInventario(@RequestBody Inventario inventario){
-        return inventarioservice.GuardarInventario(inventario);
+    public InventarioDTO GuardarInventario(@RequestBody InventarioDTO inventario){
+        return InventarioDTO.fromEntity(inventarioservice.GuardarInventario(inventario.toEntity()));
     }
 
     @GetMapping("/producto/{idProducto}")
-    public List<Inventario> BuscarbyIdProducto(@PathVariable Integer idProducto){
-        return inventarioservice.BuscarByIdProduct(idProducto);
+    public List<InventarioDTO> BuscarbyIdProducto(@PathVariable Integer idProducto){
+        return inventarioservice.BuscarByIdProduct(idProducto).stream()
+                .map(InventarioDTO::fromEntity)
+                .toList();
     }
 
     @PostMapping("/{idInventario}/descontar/{cantidad}")
-    public Inventario descontar(
+    public InventarioDTO descontar(
             @PathVariable Integer idInventario,
             @PathVariable Integer cantidad
     ){
-        return inventarioservice.descontar(idInventario, cantidad);
+        return InventarioDTO.fromEntity(inventarioservice.descontar(idInventario, cantidad));
     }
 
     @DeleteMapping("/{idInventario}")
-    public Inventario borrarById(@PathVariable Integer idInventario) {
-        return inventarioservice.BorrarById(idInventario);
+    public InventarioDTO borrarById(@PathVariable Integer idInventario) {
+        return InventarioDTO.fromEntity(inventarioservice.BorrarById(idInventario));
     }
 }
